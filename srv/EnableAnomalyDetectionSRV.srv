@@ -1,0 +1,9 @@
+# EnableAnomalyDetectionSRV - Service para habilitar/desabilitar detecção de anomalias
+# Usado pelo FSM para controlar quando a rede de detecção de corrosão deve rodar
+
+# Request
+bool enable             # True = habilitar detecção de anomalias, False = desabilitar
+---
+# Response
+bool success            # True se operação foi bem sucedida
+string message          # Mensagem de status

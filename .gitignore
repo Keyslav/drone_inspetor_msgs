@@ -1,0 +1,27 @@
+# Build artifacts (colcon / ament)
+build/
+install/
+log/
+
+# IDE / Editor configs
+.vscode/
+.idea/
+.antigravity/
+.windsurf/
+.cursor/
+*.swp
+*.swo
+*~
+
+# AI assistants
+.claude/
+.aider*
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db

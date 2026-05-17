@@ -1,0 +1,4 @@
+---
+string models_data_json  # JSON string contendo a lista completa de modelos em 'models.json'
+string current_object_model
+string current_anomaly_model

@@ -1,0 +1,51 @@
+# =============================================================================
+# DroneCommand.action
+# Action para comandos do FSM Node para o Drone Node
+# =============================================================================
+
+# === GOAL (Enviado pelo FSM Node para o Drone Node) ===
+
+# Comando a executar
+# Valores válidos: ARM, DISARM, TAKEOFF, GOTO, GOTO_FOCUS, LAND, RTL, STOP
+string command
+
+# Parâmetros para comandos GOTO e GOTO_FOCUS
+# Use float('nan') para indicar "não especificado"
+float64 lat 0.0
+float64 lon 0.0
+float64 alt 0.0
+float64 yaw 0.0
+
+# Parâmetros específicos para GOTO_FOCUS
+float64 focus_lat 0.0
+float64 focus_lon 0.0
+
+# Parâmetro para TAKEOFF
+float64 altitude 0.0
+
+---
+# === RESULT (Retornado pelo Drone Node ao completar/falhar) ===
+
+# Indica se o comando foi executado com sucesso
+bool success
+
+# Mensagem descritiva do resultado (erro ou confirmação)
+string message
+
+# Estado final do drone após execução (valor do enum DroneStateDescription)
+int32 final_state
+
+---
+# === FEEDBACK (Publicado periodicamente durante execução) ===
+
+# Estado atual do drone (valor do enum DroneStateDescription)
+int32 current_state
+
+# Nome do estado atual (ex: "VOANDO_A_CAMINHO")
+string state_name
+
+# Distância restante até o alvo em metros (para GOTO/RTL)
+float64 distance_to_target
+
+# Percentual de progresso estimado (0.0 a 100.0)
+float64 progress_percent
