@@ -1,0 +1,14 @@
+# CVDetectionSRV - Service para solicitar detecção de objeto específico
+# Usado pelo mission_node para pedir ao CV_node que detecte um objeto por nome
+
+# Request
+string object_name          # Nome do objeto a detectar (ex: "flare")
+string[] anomaly_types      # Tipos de anomalia para analisar (ex: ["chama_fraca", "fuligem"])
+float32 timeout_seconds     # Timeout para detecção (default 2.0s)
+---
+# Response
+bool success                # True se detectou o objeto
+string message              # Mensagem de status
+float32 confidence          # Confiança da detecção (0.0 a 1.0)
+int32[] bbox                # [x1, y1, x2, y2] do bounding box
+float32[] bbox_center       # [center_x, center_y] em pixels

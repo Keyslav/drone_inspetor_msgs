@@ -1,0 +1,10 @@
+# RecordDetectionsSRV - Service para controlar gravação de vídeo no CV_node
+# Usado pelo mission_node para iniciar/parar gravação durante detecção
+
+# Request
+bool start_recording        # True = iniciar gravação, False = parar gravação
+---
+# Response
+bool success                # True se operação foi bem sucedida
+string message              # Mensagem de status
+string video_path           # Caminho do vídeo salvo (apenas quando stop)
