@@ -11,10 +11,10 @@ string command
 
 # Parâmetros para comando GOTO
 # Use float('nan') para indicar "não especificado"
-float64 lat 0.0
-float64 lon 0.0
-float64 alt 0.0
-float64 yaw 0.0
+float64 lat 0.0   # Latitude geográfica, graus [-90, 90]
+float64 lon 0.0   # Longitude geográfica, graus [-180, 180]
+float64 alt 0.0   # Altitude absoluta AMSL em metros; não altura relativa ao HOME
+float64 yaw 0.0   # Rumo NED em GRAUS: 0 Norte, +90 Leste; convertido em radianos no PX4
 
 # Quando true, GOTO mantém o yaw apontando para focus_lat/focus_lon
 # durante toda a trajetória (ignora o campo yaw acima).
@@ -23,7 +23,7 @@ bool use_focus false
 float64 focus_lat 0.0
 float64 focus_lon 0.0
 
-# Parâmetro para TAKEOFF
+# Parâmetro para TAKEOFF: altura em metros acima do HOME (não altitude AMSL)
 float64 altitude 0.0
 
 ---

@@ -1,6 +1,12 @@
 # =============================================================================
 # Mensagem de Status do Drone (DroneStateMSG)
 # Publicada pelo drone_node para informar o estado atual do drone
+# CONTRATO LEGADO: todos os grupos de POSIÇÃO LOCAL usam Norte/Leste/Cima (NEU).
+# Isso NÃO é ENU nem NED. NEU é apenas uma tupla de apresentação, não um frame TF destro.
+# VELOCIDADE/ACELERAÇÃO usam NED (Z positivo para baixo). Não integrar diretamente
+# current_velocity_z em current_local_z sem inverter o sinal.
+# Origem local: estimador PX4, não necessariamente HOME ou origem do Gazebo.
+# Yaw: rumo NED, zero Norte, positivo horário para Leste. Altitudes GPS: AMSL.
 # =============================================================================
 
 # --- Estado e Flags ---
@@ -11,7 +17,7 @@ bool is_armed                          # True se os motores estão armados
 bool is_landed                         # True se o drone está pousado
 bool is_on_trajectory                  # True se está executando uma trajetória
 
-# --- Posição Corrente Local (NED) ---
+# --- Posição Corrente Local (NEU legado: Norte/Leste/Cima) ---
 float64 current_local_x                # Posição X local (metros, Norte)
 float64 current_local_y                # Posição Y local (metros, Leste)
 float64 current_local_z                # Posição Z local (metros, altitude positiva para cima)
@@ -19,7 +25,7 @@ float64 current_local_z                # Posição Z local (metros, altitude pos
 # --- Posição Corrente Global (GPS) ---
 float64 current_latitude               # Latitude atual (graus)
 float64 current_longitude              # Longitude atual (graus)
-float64 current_altitude               # Altitude atual (metros)
+float64 current_altitude               # Altitude absoluta AMSL (metros)
 
 # --- Orientação Corrente ---
 float64 current_yaw_deg                # Yaw atual (graus, 0 a 360)
@@ -31,20 +37,20 @@ float64 home_global_lat                # Latitude do HOME (graus)
 float64 home_global_lon                # Longitude do HOME (graus)
 float64 home_global_alt                # Altitude do HOME (metros)
 
-# --- Posição HOME Local (NED) ---
+# --- Posição HOME Local (NEU legado: Norte/Leste/Cima) ---
 float64 home_local_x                   # Posição X local do HOME (metros)
 float64 home_local_y                   # Posição Y local do HOME (metros)
-float64 home_local_z                   # Posição Z local do HOME (metros)
+float64 home_local_z                   # Altura do HOME sobre origem local (metros, positiva para cima)
 
 # --- Orientação HOME ---
 float64 home_yaw_deg                   # Yaw do HOME (graus, 0 a 360)
 float64 home_yaw_deg_normalized        # Yaw do HOME (graus, -180 a 180)
 float64 home_yaw_rad                   # Yaw do HOME (radianos, -pi a pi)
 
-# --- Posição Alvo Local (NED) ---
+# --- Posição Alvo Local (NEU legado: Norte/Leste/Cima) ---
 float64 target_local_x                 # Posição X alvo (metros)
 float64 target_local_y                 # Posição Y alvo (metros)
-float64 target_local_z                 # Posição Z alvo (metros)
+float64 target_local_z                 # Altura alvo sobre origem local (metros, positiva para cima)
 
 # --- Posição Alvo Global (GPS) ---
 float64 target_lat                     # Latitude alvo (graus)
@@ -66,7 +72,7 @@ float64 focus_yaw_deg                  # Yaw para apontar ao foco (graus, 0 a 36
 float64 focus_yaw_deg_normalized       # Yaw para apontar ao foco (graus, -180 a 180)
 float64 focus_yaw_rad                  # Yaw para apontar ao foco (radianos)
 
-# --- Última Posição Estática (para hover estável) ---
+# --- Última Posição Estática (NEU legado, para hover estável) ---
 float64 last_static_position_x         # Última posição X estática (metros)
 float64 last_static_position_y         # Última posição Y estática (metros)
 float64 last_static_position_z         # Última posição Z estática (metros)
@@ -74,7 +80,7 @@ float64 last_static_yaw_deg            # Último yaw estático (graus, 0 a 360)
 float64 last_static_yaw_deg_normalized # Último yaw estático (graus, -180 a 180)
 float64 last_static_yaw_rad            # Último yaw estático (radianos)
 
-# --- Ponto de Desvio de Trajetória (quando há obstáculos) ---
+# --- Ponto de Desvio de Trajetória (NEU legado, quando há obstáculos) ---
 bool has_trajectory_adjusted           # True se há um ponto de desvio ativo
 float64 trajectory_adjusted_x          # Posição X do ponto de desvio (metros)
 float64 trajectory_adjusted_y          # Posição Y do ponto de desvio (metros)
@@ -88,6 +94,5 @@ float64 current_velocity_z             # Velocidade Z local (m/s, para baixo)
 # --- Aceleração Corrente (m/s²) ---
 float64 current_acceleration_x         # Aceleração X local (m/s²)
 float64 current_acceleration_y         # Aceleração Y local (m/s²)
-float64 current_acceleration_z         # Aceleração Z local (m/s²)
-
+float64 current_acceleration_z         # Aceleração Z NED (m/s², positiva para baixo)
 
