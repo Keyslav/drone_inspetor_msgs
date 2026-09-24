@@ -1,9 +1,10 @@
 # =============================================================================
 # Mensagem de Detecção de Obstáculos (ObstaclesMSG)
-# Mensagem genérica para detecção de obstáculos. Publicada por sensores como
-# lidar_node (cobertura 360° + abaixo) e depth_node (cobertura frontal),
-# consumida pelo drone_node que mescla as fontes (OR) para evitar colisões.
-# Sensores devem deixar em False os campos que não conseguem inferir.
+# Resumo legado para apresentação, publicado por lidar_node e depth_node.
+# A cobertura depende do sensor configurado; não pressupõe LiDAR de 360°.
+# False significa ausência de detecção e também pode representar dado desconhecido.
+# Na v2, drone_node usa os LaserScan métricos originais, pose e idade das amostras;
+# estas flags não autorizam movimento nem comprovam que um corredor está livre.
 # =============================================================================
 
 # --- Obstáculos por Distância (qualquer direção horizontal coberta pelo sensor) ---
@@ -13,11 +14,12 @@ bool have_obstacles_3m              # Obstáculo em raio de 3 metros
 bool have_obstacles_2m              # Obstáculo em raio de 2 metros
 bool have_obstacles_1m              # Obstáculo em raio de 1 metro
 
-# --- Obstáculos por Quadrante (1 metro, arcos de 90°) ---
-bool have_obstacles_front_90        # Frente: -45° a +45°
-bool have_obstacles_right_90        # Direita: +45° a +135°
-bool have_obstacles_back_90         # Trás: +135° a -135° (ou ±180°)
-bool have_obstacles_left_90         # Esquerda: -45° a -135°
+# --- Obstáculos por Quadrante (1 metro, arcos FLU/ROS; positivo à esquerda) ---
+# Limite inicial inclusivo e final exclusivo, sem duplicar pontos nas fronteiras.
+bool have_obstacles_front_90        # Frente: [-45°, +45°)
+bool have_obstacles_right_90        # Direita: [-135°, -45°)
+bool have_obstacles_back_90         # Trás: [+135°, +180°] e [-180°, -135°)
+bool have_obstacles_left_90         # Esquerda: [+45°, +135°)
 
 # --- Sensor Inferior (lidar_down) ---
 bool have_obstacles_down_1m         # Obstáculo a até 1 metro abaixo

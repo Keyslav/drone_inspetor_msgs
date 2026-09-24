@@ -4,11 +4,11 @@
 # =============================================================================
 
 # --- Estado Principal ---
-uint8 state                                # Código do estado (MissionStateDescription enum)
+uint8 state                                # Código do estado (MissionFSMDescription enum)
 string state_name                          # Nome do estado (ex: "EXECUTANDO_INSPECIONANDO")
 
 # --- Flags de Missão ---
-bool on_mission                            # True se uma missão está em execução
+bool on_mission                            # Flag de sessão; pode ser False durante retorno após cancelar
 bool cancel_mission                        # True se cancelamento foi solicitado
 
 # --- Missão Atual ---
@@ -17,11 +17,11 @@ string mission_folder_path                 # Caminho completo da pasta da missã
 float64 tempo_de_permanencia               # Tempo de permanência em cada ponto (segundos)
 
 # --- Parâmetros de Configuração ---
-float64 takeoff_altitude                   # Altitude de decolagem (metros)
+float64 takeoff_altitude                   # Altura de decolagem acima do HOME (metros), não AMSL
 
 # --- Controle de Waypoints ---
 int32 ponto_de_inspecao_indice_atual       # Índice do ponto de inspeção atual (0-based)
 int32 total_pontos_de_inspecao             # Número total de pontos de inspeção na missão
-float64 ponto_de_inspecao_tempo_de_chegada # Timestamp de chegada ao ponto (0.0 se não chegou)
+float64 ponto_de_inspecao_tempo_de_chegada # Tempo ROS de chegada em segundos (0.0 se não chegou)
 string objeto_alvo                         # Nome do objeto alvo no ponto atual (ex: "flare")
 string[] tipos_anomalia                    # Lista de tipos de anomalia a buscar (ex: ["mild_corrosion", "severe_corrosion"])

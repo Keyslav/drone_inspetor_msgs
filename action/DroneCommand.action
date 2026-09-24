@@ -7,10 +7,13 @@
 
 # Comando a executar
 # Valores válidos: ARM, DISARM, TAKEOFF, GOTO, LAND, RTL, STOP
+# LAND/RTL delegam o movimento ao PX4; STOP freia a referência em OFFBOARD.
+# Aceitação do goal não significa conclusão: aguarde o RESULT confirmado.
 string command
 
 # Parâmetros para comando GOTO
 # Use float('nan') para indicar "não especificado"
+# Os zeros gerados por padrão são valores reais, não campos omitidos.
 float64 lat 0.0   # Latitude geográfica, graus [-90, 90]
 float64 lon 0.0   # Longitude geográfica, graus [-180, 180]
 float64 alt 0.0   # Altitude absoluta AMSL em metros; não altura relativa ao HOME
