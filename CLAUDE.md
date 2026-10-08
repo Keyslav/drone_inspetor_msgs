@@ -1,63 +1,61 @@
-# CLAUDE.md
+# Orientações para manutenção de `drone_inspetor_msgs`
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Este arquivo orienta assistentes de código e contribuidores ao alterar o pacote.
+O [README](README.md) explica sua finalidade, instalação, compilação e interfaces
+disponíveis. Para iniciar os nós consumidores, consulte o
+[guia de execução da aplicação](../drone_inspetor/docs/EXECUCAO.md).
 
-# drone_inspetor_msgs
+## Escopo e fontes de referência
 
-Pacote ROS2 (ament_cmake) de interfaces customizadas (mensagens, serviços e actions) para o sistema drone_inspetor de inspeção industrial autônoma com drone. Deve ser compilado **antes** do pacote `drone_inspetor`, pois é dependência dele.
+Este é um pacote `ament_cmake`/rosidl que gera contratos ROS 2. Não contém nós
+executáveis nem launchers. Ele é dependência de `drone_inspetor`; os dois pacotes
+devem usar a mesma linha `v2.0` e atualmente declaram versão `2.0.0`.
 
-## Build e verificação
+- As definições e comentários em [msg/](msg/), [srv/](srv/) e [action/](action/)
+  determinam os campos, tipos, unidades e semântica dos contratos.
+- [CMakeLists.txt](CMakeLists.txt) registra as interfaces geradas e dependências
+  de compilação; [package.xml](package.xml) declara metadados e dependências ROS.
+- O [contrato de coordenadas da aplicação](../drone_inspetor/docs/COORDENADAS.md)
+  explica os referenciais usados pelos consumidores.
+
+Consulte essas fontes antes de editar um contrato. Não mantenha aqui cópias das
+tabelas de campos: elas podem divergir das interfaces. As flags de obstáculos
+servem para apresentação; não comprovam espaço livre nem autorizam movimento.
+
+## Alterar ou adicionar uma interface
+
+1. Identifique os publicadores, assinantes, clientes e servidores afetados no
+   `drone_inspetor`. Preserve nomes, significado, unidades e valores padrão quando
+   possível; coordene mudanças incompatíveis com todos os consumidores.
+2. Crie ou edite o arquivo em `msg/`, `srv/` ou `action/`. Siga a nomenclatura
+   existente, como `NomeMSG.msg`, `NomeSRV.srv` e `DroneCommand.action`, e documente
+   unidades, referenciais e tratamento de valores ausentes nos comentários.
+3. Para um arquivo novo, acrescente seu caminho a `rosidl_generate_interfaces()`
+   em `CMakeLists.txt`.
+4. Se introduzir tipos de outro pacote, declare a dependência em `package.xml`,
+   use `find_package(... REQUIRED)` em `CMakeLists.txt` e inclua o pacote em
+   `DEPENDENCIES` de `rosidl_generate_interfaces()`.
+5. Recompile as interfaces e os consumidores, carregue o overlay correto e
+   reinicie os processos que usam os tipos gerados. Trocar a branch ou usar
+   `--symlink-install` não dispensa recompilar as interfaces.
+6. Confira os tipos gerados e execute os testes pertinentes da aplicação,
+   conforme seu [README](../drone_inspetor/README.md). Atualize a documentação
+   quando a mudança alterar o comportamento público.
+
+## Verificação rápida
+
+Com as dependências preparadas conforme o [README](README.md):
 
 ```bash
-# Compilar
+source /opt/ros/jazzy/setup.bash
 cd ~/ros2_ws
 colcon build --packages-select drone_inspetor_msgs
 source install/setup.bash
-
-# Verificar uma interface gerada
 ros2 interface show drone_inspetor_msgs/msg/DroneStateMSG
 ros2 interface show drone_inspetor_msgs/action/DroneCommand
 ros2 interface show drone_inspetor_msgs/srv/CVDetectionSRV
 ```
 
-## Adicionando uma nova interface
-
-1. Criar o arquivo em `msg/`, `srv/` ou `action/` seguindo o padrão de nomenclatura existente (`NomeMSG.msg`, `NomeSRV.srv`, `NomeAction.action`)
-2. Registrar o novo arquivo em `CMakeLists.txt` dentro do bloco `rosidl_generate_interfaces()`
-3. Se usar tipos de outros pacotes além de `std_msgs`/`action_msgs`, adicioná-los em `DEPENDENCIES` no mesmo bloco e como `<depend>` no `package.xml`
-
-## Branches
-
-| Branch | Corresponde a |
-|---|---|
-| `v2.0` | Branch `v2.0` do `drone_inspetor` |
-
-## Mensagens (msg/)
-
-| Mensagem | Descrição | Campos principais |
-|---|---|---|
-| `DroneStateMSG` | Telemetria completa do drone | state, posição local/global (NED + GPS), yaw (3 formatos), velocidade, aceleração, is_armed, is_landed, trajetória ajustada, ponto de foco |
-| `MissionStateMSG` | Estado da máquina de estados de missão | state, on_mission, mission_name, waypoint atual/total, objeto alvo, tipos de anomalia |
-| `CVDetectionMSG` | Resultado agregado de detecção CV | timestamp, count, array de CVDetectionItemMSG |
-| `CVDetectionItemMSG` | Detecção individual de objeto | object_type, class_name, confidence, bbox [x1,y1,x2,y2], bbox_center |
-| `CVControlMSG` | Comando de seleção de modelo CV | object_detection_model, anomaly_detection_model |
-| `DashboardMissionCommandMSG` | Comando do dashboard para mission_node | command (int32), mission (string) |
-| `MissionCommandMSG` | Coordenação de ciclo de missão | command (1=START, 2=STOP), data |
-| `LidarMSG` | Dados raw do LiDAR | point_vector [dist,angle,...], ground_distance |
-| `ObstaclesMSG` | Obstáculos detectados — genérico, publicado por `lidar_node` e `depth_node`; `drone_node` mescla as fontes via OR. Sensores deixam em `false` campos que não conseguem inferir. | flags booleanos: por distância (8m,5m,3m,2m,1m), por quadrante de 90° (front,right,back,left), abaixo (1m,0.5m) |
-
-## Serviços (srv/)
-
-| Serviço | Request → Response |
-|---|---|
-| `CVDetectionSRV` | `object_name, anomaly_types[], timeout` → `success, confidence, bbox, bbox_center` |
-| `RecordDetectionsSRV` | `start_recording (bool)` → `success, message, video_path` |
-| `EnableAnomalyDetectionSRV` | `enable (bool)` → `success, message` |
-| `CVModelsSRV` | `(vazio)` → `models_data_json, current_object_model, current_anomaly_model` |
-
-## Action (action/)
-
-**DroneCommand** — enviada pelo Mission Node ao Drone Node:
-- **Goal:** `command` (ARM/DISARM/TAKEOFF/GOTO/LAND/RTL/STOP), `lat/lon/alt/yaw`, `use_focus` (bool), `focus_lat/focus_lon`, `altitude`. Com `use_focus=true`, GOTO mantém yaw apontando para o ponto de foco ao longo de toda a trajetória (campo `yaw` é ignorado).
-- **Result:** `success, message, final_state`
-- **Feedback:** `current_state, state_name, distance_to_target, progress_percent`
+Esses comandos conferem a geração das interfaces; a validação dos consumidores
+exige o build e os testes da aplicação. Ao comparar v1 e v2, use um terminal novo
+e build/install isolados, conforme o README da aplicação.
